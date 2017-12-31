@@ -3,19 +3,55 @@
 import argparse
 import itertools
 
-# 1234
-
-# 1 2 3 4
-# 1 2 34
-# 1 23 4
-# 12 3 4
-# 1 234
-# 123 4
-# 1234
-# 12 34
-
 perm_seen = set()
 
+# produce a pair from a tree: (value of tree, number of operators)
+def eval_tree(tree):
+  t0 = tree[0]
+  if type(t0) == int:
+    return (t0, 0)
+
+  t1 = eval_tree(tree[1])
+  t2 = eval_tree(tree[2])
+
+  if t0 == '+':
+    return (t1[0] + t2[0], 1 + t1[1] + t2[1])
+  if t0 == '-':
+    return (t1[0] - t2[0], 1 + t1[1] + t2[1])
+  if t0 == '*':
+    return (t1[0] * t2[0], 1 + t1[1] + t2[1])
+  if t0 == '/':
+    if t2[0] == 0:
+      return 0
+    return (t1[0] / t2[0], 1 + t1[1] + t2[1])
+  if t0 == '^':
+    return (pow(t1[0],t2[0]), 1 + t1[1] + t2[1])
+
+# from a tuple of numbers, produce all trees of operators
+def trees_from_tuple(tpl):
+  splits = len(tpl) - 1
+
+  if splits == 0:
+    return [tpl]
+
+  trees = []
+
+  for i in range(splits):
+    lefts = trees_from_tuple(tpl[:i+1])
+    rights = trees_from_tuple(tpl[i+1:])
+
+    for l in lefts:
+      for r in rights:
+        trees.append(('+', l, r))
+        trees.append(('-', l, r))
+        trees.append(('*', l, r))
+        trees.append(('/', l, r))
+        trees.append(('^', l, r))
+
+  return trees
+
+# given a tuple of individual digits, produce all groupings
+# of the digits into larger numbers, preserving order
 def groups_from_digits(digits):
   if len(digits) == 1:
     return [digits]
@@ -33,10 +69,13 @@ def groups_from_digits(digits):
 
   return groups
 
-def solve_digit_tuple(digits):
-  groups = groups_from_digits(digits)
+def solve_group(group):
+  trees = trees_from_tuple(group)
+  print trees
   
-  print groups
+def solve_digit_tuple(digits):
+  for g in groups_from_digits(digits):
+    solve_group(g)
 
 def solve(year):
   digits = [int(d) for d in str(year)]
