@@ -3,7 +3,6 @@
 import argparse
 import itertools
 
-
 solutions = {}
 
 perm_seen = set()
@@ -35,6 +34,14 @@ def eval_tree(tree):
     if t1[0] < 0 and round(t2[0]) != t2[0]:
       return (0, 1000, tree)
     return (pow(t1[0],t2[0]), 1 + t1[1] + t2[1], tree)
+
+def format_tree(tree, level):
+  if len(tree) == 1:
+    return str(tree[0])
+  v = format_tree(tree[1], level + 1) + " " + tree[0] + " " + format_tree(tree[2], level + 1)
+  if level > 0:
+    v = "(" + v + ")"
+  return v
 
 # from a tuple of numbers, produce all trees of operators
 def trees_from_tuple(tpl):
@@ -81,10 +88,12 @@ def groups_from_digits(digits):
 def solve_group(group):
   for t in trees_from_tuple(group):
     v = eval_tree(t)
-    k = int(round(v[0]))
-    if k != v[0]:
-      continue
+    k = v[0]
     if k < 1 or k > 100:
+      continue
+
+    k = int(round(k))
+    if k != v[0]:
       continue
     if k in solutions:
       curr_v = solutions[k]
@@ -98,7 +107,6 @@ def solve_digit_tuple(digits):
 
 def solve(year):
   digits = [int(d) for d in str(year)]
-  print digits
 
   for x in itertools.permutations(digits):
     if x in perm_seen:
@@ -116,7 +124,7 @@ def main():
   solve(args.year)
 
   for k in solutions.keys():
-    v = solutions[k]
+    v = format_tree(solutions[k][2], 0)
     print ("{}: {}".format(k, v))
 
 if __name__ == "__main__":
