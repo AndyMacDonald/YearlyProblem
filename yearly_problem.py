@@ -3,29 +3,38 @@
 import argparse
 import itertools
 
+
+solutions = {}
+
 perm_seen = set()
 
-# produce a pair from a tree: (value of tree, number of operators)
+# produce a triple from a tree: (value of tree, number of operators, tree)
 def eval_tree(tree):
   t0 = tree[0]
   if type(t0) == int:
-    return (t0, 0)
+    return (t0, 0, tree)
 
   t1 = eval_tree(tree[1])
   t2 = eval_tree(tree[2])
 
   if t0 == '+':
-    return (t1[0] + t2[0], 1 + t1[1] + t2[1])
+    return (t1[0] + t2[0], 1 + t1[1] + t2[1], tree)
   if t0 == '-':
-    return (t1[0] - t2[0], 1 + t1[1] + t2[1])
+    return (t1[0] - t2[0], 1 + t1[1] + t2[1], tree)
   if t0 == '*':
-    return (t1[0] * t2[0], 1 + t1[1] + t2[1])
+    return (t1[0] * t2[0], 1 + t1[1] + t2[1], tree)
   if t0 == '/':
     if t2[0] == 0:
-      return 0
-    return (t1[0] / t2[0], 1 + t1[1] + t2[1])
+      return (0, 1000, tree)
+    return (float(t1[0]) / t2[0], 1 + t1[1] + t2[1], tree)
   if t0 == '^':
-    return (pow(t1[0],t2[0]), 1 + t1[1] + t2[1])
+    if t1[0] == 0 and t2[0] < 0:
+      return (0, 1000, tree)
+    if t1[0] >= 2 and t2[0] > 7:
+      return (0, 1000, tree)
+    if t1[0] < 0 and round(t2[0]) != t2[0]:
+      return (0, 1000, tree)
+    return (pow(t1[0],t2[0]), 1 + t1[1] + t2[1], tree)
 
 # from a tuple of numbers, produce all trees of operators
 def trees_from_tuple(tpl):
@@ -70,9 +79,19 @@ def groups_from_digits(digits):
   return groups
 
 def solve_group(group):
-  trees = trees_from_tuple(group)
-  print trees
-  
+  for t in trees_from_tuple(group):
+    v = eval_tree(t)
+    k = int(round(v[0]))
+    if k != v[0]:
+      continue
+    if k < 1 or k > 100:
+      continue
+    if k in solutions:
+      curr_v = solutions[k]
+      if v[1] >= curr_v[1]:
+        continue
+    solutions[k] = v
+
 def solve_digit_tuple(digits):
   for g in groups_from_digits(digits):
     solve_group(g)
@@ -96,6 +115,9 @@ def main():
 
   solve(args.year)
 
+  for k in solutions.keys():
+    v = solutions[k]
+    print ("{}: {}".format(k, v))
 
 if __name__ == "__main__":
     main()
