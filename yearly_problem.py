@@ -20,15 +20,16 @@ def groups_from_digits(digits):
 	if len(digits) == 1:
 		return [digits]
 
-	first = digits[0]
-	rest = groups_from_digits(digits[1:])
+	last = digits[-1]
+	rest = groups_from_digits(digits[:-1])
 
 	groups = []
 	for g in rest:
-		g1 = (first,) + g
+		g1 = g + (last,)
 		groups.append(g1)
-		g2 = (int(str(first) + str(g[0])),) + g[1:]
-		groups.append(g2)
+		if g[-1] != 0:
+			g2 = g[:-1] + (g[-1] * 10 + last,)
+			groups.append(g2)
 
 	return groups
 
