@@ -35,13 +35,43 @@ def eval_tree(tree):
       return (0, 1000, tree)
     return (pow(t1[0],t2[0]), 1 + t1[1] + t2[1], tree)
 
-def format_tree(tree, level):
+def precidence(op):
+  if op == '+' or op == '-':
+    return 1
+  if op == '*' or op == '/':
+    return 2
+  if op == '^':
+    return 3
+  return 4 # noop
+
+def commutative(op):
+  if op == '-' or op == '/':
+    return False
+  return True
+
+def need_parens(parent, child):
+  if child == '':
+    return False
+  if not commutative(parent) and precidence(parent) == precidence(child):
+    return True
+  return precidence(parent) > precidence(child)
+
+def format_tree(tree):
   if len(tree) == 1:
-    return str(tree[0])
-  v = format_tree(tree[1], level + 1) + " " + tree[0] + " " + format_tree(tree[2], level + 1)
-  if level > 0:
-    v = "(" + v + ")"
-  return v
+    return (str(tree[0]), '')
+
+  left = format_tree(tree[1])
+  l = left[0]
+  right = format_tree(tree[2])
+  r = right[0]
+  op = tree[0]
+
+  if need_parens(op, left[1]):
+    l = "(" + l + ")"
+  if need_parens(op, right[1]):
+    r = "(" + r + ")"
+
+  return (l + " " + op + " " + r, op)
 
 # from a tuple of numbers, produce all trees of operators
 def trees_from_tuple(tpl):
@@ -124,7 +154,7 @@ def main():
   solve(args.year)
 
   for k in solutions.keys():
-    v = format_tree(solutions[k][2], 0)
+    v = format_tree(solutions[k][2])[0]
     print ("{}: {}".format(k, v))
 
 if __name__ == "__main__":
