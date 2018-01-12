@@ -1,11 +1,30 @@
 #!/usr/bin/python
 
 import argparse
-import itertools
 
 solutions = {}
 
-perm_seen = set()
+def perm_iter(n, a, p):
+  if n == 1:
+    p.append(tuple(x for x in a)) # store tuples
+    return
+
+  for i in range(n - 1):
+    perm_iter(n - 1, a, p)
+    if n % 2 == 0:
+      a[i], a[n-1] = a[n-1], a[i]
+    else:
+      a[0], a[n-1] = a[n-1], a[0]
+
+  perm_iter(n - 1, a, p)
+
+def unique_permutations(a):
+  perm = []
+
+  l = [x for x in a] # convert to list
+
+  perm_iter(len(a), l, perm)
+  return perm
 
 # produce a triple from a tree: (value of tree, number of operators, tree)
 def eval_tree(tree):
@@ -136,13 +155,8 @@ def solve_digit_tuple(digits):
     solve_group(g)
 
 def solve(year):
-  digits = [int(d) for d in str(year)]
-
-  for x in itertools.permutations(digits):
-    if x in perm_seen:
-      continue
-    perm_seen.add(x)
-    solve_digit_tuple(x)
+  for y in unique_permutations(str(year)):
+    solve_digit_tuple(tuple(int(d) for d in y))
 
 def main():
   parser = argparse.ArgumentParser()
