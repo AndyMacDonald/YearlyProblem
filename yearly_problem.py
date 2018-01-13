@@ -8,7 +8,7 @@ def perm_iter(n, a, p):
   if n == 1:
     t = tuple(x for x in a)
     if t not in p:
-      p.append() # store tuples
+      p.append(t) # store tuples
     return
 
   for i in range(n - 1):
