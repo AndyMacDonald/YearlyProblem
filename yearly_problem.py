@@ -6,7 +6,9 @@ solutions = {}
 
 def perm_iter(n, a, p):
   if n == 1:
-    p.append(tuple(x for x in a)) # store tuples
+    t = tuple(x for x in a)
+    if t not in p:
+      p.append() # store tuples
     return
 
   for i in range(n - 1):
