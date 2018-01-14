@@ -2,6 +2,7 @@ import Html exposing (Html, div, input, li, ol, text)
 import Html.Attributes exposing (..)
 import Html.Events exposing (onInput)
 import Dict
+import Set
 
 main =
   Html.beginnerProgram
@@ -57,9 +58,14 @@ view model =
   div []
     [ input [ type_ "number", placeholder "Year", onInput Change ] []
     , div [] 
-          [ ol [] (List.map (\s -> li [] [text s]) (permutations model.content))
+          [ ol [] (List.map (\s -> li [] [text s]) (uniquePermutations model.content))
           ]
     ]
+
+-- Deduplicate a set of permuations. Not guaranteed to preserve order
+uniquePermutations : String -> List String
+uniquePermutations s =
+  permutations s |> Set.fromList |> Set.toList
 
 -- Take a string and return list containing all permutations of that string
 permutations : String -> List String
