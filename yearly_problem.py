@@ -15,10 +15,8 @@ def perm_iter(n, a, p):
     perm_iter(n - 1, a, p)
     if n % 2 == 0:
       a[i], a[n-1] = a[n-1], a[i]
-      print ("{}\t{}\t{}".format(i, n-1, a))
     else:
       a[0], a[n-1] = a[n-1], a[0]
-      print ("0\t{}\t{}".format(n-1, a))
 
   perm_iter(n - 1, a, p)
 
