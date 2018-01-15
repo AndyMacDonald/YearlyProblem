@@ -21,13 +21,9 @@ type Op
   | DIVIDE
   | EXP
 
-type alias Precedence = Dict.Dict Op Int
-
-type alias Associative = Dict.Dict Op Bool
-
 type OpTree
   = Leaf Int
-  | Node Op Int Int
+  | Node Op OpTree OpTree
 
 type alias Model =
   { content : String
@@ -62,7 +58,8 @@ view model =
   div []
     [ input [ type_ "number", placeholder "Year", onInput Change ] []
     , div [] 
-          [ ol [] (List.map (\s -> li [] [text s]) (digitGroups model.content))
+          --[ ol [] (List.map (\s -> li [] [text s]) (digitGroups model.content))
+          [ ol [] (List.map (\s -> li [] [text s]) (List.map (formatTree Nothing) sampleTrees))
           ]
     ]
 
@@ -184,3 +181,66 @@ resultToInt =
   List.map (\n -> case n of
                     Ok i -> i
                     Err _ -> 0) -- Filter out errors before so this is never reached
+
+-- Tree formatting
+precidence : Op -> Int
+precidence o =
+  case o of
+    PLUS -> 1
+    MINUS -> 1
+    TIMES -> 2
+    DIVIDE -> 2
+    EXP -> 3
+
+commutative : Op -> Bool
+commutative o =
+  case o of
+    MINUS -> False
+    DIVIDE -> False
+    _ -> True
+
+needParens : Maybe Op -> Op -> Bool
+needParens parent child =
+  case parent of
+    Nothing -> False
+    Just p ->
+      if (precidence p) == (precidence child) || not (commutative p) then
+        True
+      else
+        precidence p > precidence child
+
+operator : OpTree -> Maybe Op
+operator t =
+  case t of
+    Node op _ _ -> Just op
+    Leaf _ -> Nothing
+
+formatOp : Op -> String
+formatOp op =
+  case op of
+    PLUS -> "+"
+    MINUS -> "-"
+    TIMES -> "*"
+    DIVIDE -> "/"
+    EXP -> "^"
+
+formatTree : Maybe Op -> OpTree -> String
+formatTree parent t =
+  case t of
+    Leaf i -> toString i
+    Node op l r ->
+      let
+        left = formatTree (Just op) l
+        right = formatTree (Just op) r
+        parens = needParens parent op
+        open = if parens then "(" else ""
+        close = if parens then ")" else ""
+      in
+        String.concat [open, left, formatOp op, right, close]
+
+sampleTrees : List OpTree
+sampleTrees =
+  [ Leaf 17
+  , Node PLUS (Leaf 3) (Leaf 4)
+  , Node TIMES (Node MINUS (Leaf 2) (Leaf 8)) (Leaf 10)
+  ]
