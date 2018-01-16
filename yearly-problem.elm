@@ -21,6 +21,10 @@ type Op
   | DIVIDE
   | EXP
 
+allOps : List Op
+allOps =
+  [PLUS, MINUS, TIMES, DIVIDE, EXP]
+
 type OpTree
   = Leaf Int
   | Node Op OpTree OpTree
@@ -59,9 +63,13 @@ view model =
     [ input [ type_ "number", placeholder "Year", onInput Change ] []
     , div [] 
           --[ ol [] (List.map (\s -> li [] [text s]) (digitGroups model.content))
-          [ ol [] (List.map (\s -> li [] [text s]) (List.map (formatTree Nothing) sampleTrees))
+          [ ol [] (List.map (\s -> li [] [text s]) (List.map (formatTree Nothing) (createTrees model.content)))
           ]
     ]
+
+createTrees : String -> List OpTree
+createTrees =
+  treesFromGroups << digitGroups
 
 digitGroups : String -> List String
 digitGroups s =
@@ -146,6 +154,7 @@ hasLeadingZeros s =
         Just (c, s) -> c == '0' && String.length s > 0
       )
 
+-- Convert number strings to opeator trees
 treesFromGroups : List String -> List OpTree
 treesFromGroups groups =
   List.map numsFromString groups |>  -- List List (Result String Int)
@@ -157,9 +166,16 @@ treesFromDigits nums =
   case nums of
     [] -> [] -- should never happen
     h :: [] -> List.singleton (Leaf h)
-    _ :: t -> []
+    _ :: t -> 
+      List.concatMap (treesFromSplitDigits nums) (List.range 1 ((List.length nums) - 1))
 
-    --(naiveTree s) :: []
+treesFromSplitDigits : List Int -> Int -> List OpTree
+treesFromSplitDigits nums i =
+  let
+    left = List.take i nums |> treesFromDigits 
+    right = List.drop i nums |> treesFromDigits
+  in
+    crossMap3 Node allOps left right
 
 naiveTree : List Int -> OpTree
 naiveTree nums =
@@ -244,3 +260,12 @@ sampleTrees =
   , Node PLUS (Leaf 3) (Leaf 4)
   , Node TIMES (Node MINUS (Leaf 2) (Leaf 8)) (Leaf 10)
   ]
+
+-- Utilities
+crossMap3 : (a -> b -> c -> d) -> List a -> List b -> List c -> List d
+crossMap3 f aList bList cList =
+  List.concatMap (\a -> crossMap2 (f a) bList cList) aList
+
+crossMap2 : (a -> b -> c) -> List a -> List b -> List c
+crossMap2 f aList bList =
+  List.concatMap (\a -> List.map (f a) bList) aList
