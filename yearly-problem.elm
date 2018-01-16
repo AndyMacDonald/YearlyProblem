@@ -220,7 +220,7 @@ needParens parent child =
   case parent of
     Nothing -> False
     Just p ->
-      if (precidence p) == (precidence child) || not (commutative p) then
+      if (precidence p) == (precidence child) && not (commutative p) then
         True
       else
         precidence p > precidence child
