@@ -29,6 +29,14 @@ type OpTree
   = Leaf Int
   | Node Op OpTree OpTree
 
+type alias Candidate =
+  { tree : OpTree
+  , opCount : Int
+  , ordered : Bool
+  }
+
+type alias Candidates = Dict.Dict Int Candidate
+
 type alias Model =
   { content : String
   }
@@ -63,9 +71,25 @@ view model =
     [ input [ type_ "number", placeholder "Year", onInput Change ] []
     , div [] 
           --[ ol [] (List.map (\s -> li [] [text s]) (digitGroups model.content))
-          [ ol [] (List.map (\s -> li [] [text s]) (List.map (formatTree Nothing) (createTrees model.content)))
+          --[ ol [] (List.map (\s -> li [] [text s]) (List.map (formatTree Nothing) (createTrees model.content)))
+          [ ol [] (createListItems model.content)
           ]
     ]
+
+createListItems : String -> List (Html Msg)
+createListItems s =
+  let
+    c = createCandidates s
+  in
+    List.map (\i -> 
+                li [] (case Dict.get i c of
+                    Nothing -> []
+                    Just c -> [text (formatTree Nothing c.tree)]))
+              (List.range 1 100)
+
+createCandidates : String -> Candidates
+createCandidates s =
+  sampleCandidates
 
 createTrees : String -> List OpTree
 createTrees =
@@ -260,6 +284,13 @@ sampleTrees =
   , Node PLUS (Leaf 3) (Leaf 4)
   , Node TIMES (Node MINUS (Leaf 2) (Leaf 8)) (Leaf 10)
   ]
+
+sampleCandidates : Candidates
+sampleCandidates =
+  Dict.empty
+    |> Dict.insert 17 {tree = (Leaf 17), opCount = 0, ordered = False}
+    |> Dict.insert 7 {tree = (Node PLUS (Leaf 3) (Leaf 4)), opCount = 1, ordered = False}
+    |> Dict.insert -80 {tree = (Node TIMES (Node MINUS (Leaf 2) (Leaf 8)) (Leaf 10)), opCount = 2, ordered = False}
 
 -- Utilities
 crossMap3 : (a -> b -> c -> d) -> List a -> List b -> List c -> List d
