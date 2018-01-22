@@ -72,7 +72,8 @@ view model =
     , div [] 
           --[ ol [] (List.map (\s -> li [] [text s]) (digitGroups model.content))
           --[ ol [] (List.map (\s -> li [] [text s]) (List.map (formatTree Nothing) (createTrees model.content)))
-          [ ol [] (createListItems model.content)
+          [ ol [] (List.map (\s -> li [] [text s]) (List.map (toString << evalTree) (createTrees model.content)))
+          --[ ol [] (createListItems model.content)
           ]
     ]
 
@@ -278,6 +279,31 @@ formatTree parent t =
       in
         String.concat [open, left, formatOp op, right, close]
 
+evalTree : OpTree -> Maybe Float
+evalTree t =
+  case t of
+    Leaf i -> Just (toFloat i)
+    Node op l r -> 
+      evalTree l
+        |> Maybe.andThen (\left ->
+          evalTree r
+            |> Maybe.andThen (\right ->
+                case op of
+                  PLUS -> Just (left + right)
+                  MINUS -> Just (left - right)
+                  TIMES -> Just (left * right)
+                  DIVIDE -> 
+                    let
+                      x = left / right
+                    in
+                      if isInfinite x then Nothing else Just x 
+                  EXP -> 
+                    let
+                      x = left ^ right
+                    in
+                      if isInfinite x || isNaN x then Nothing else Just x
+              ))
+
 sampleTrees : List OpTree
 sampleTrees =
   [ Leaf 17
@@ -285,12 +311,23 @@ sampleTrees =
   , Node TIMES (Node MINUS (Leaf 2) (Leaf 8)) (Leaf 10)
   ]
 
+-- Candidate management
+insertCandidate : Int -> Candidate -> Candidates -> Candidates
+insertCandidate i c =
+  Dict.update
+    i
+    (\mc ->
+      case mc of
+        Nothing -> Just c
+        Just cOld ->
+          if c.opCount < cOld.opCount then Just c else mc)
+
 sampleCandidates : Candidates
 sampleCandidates =
   Dict.empty
-    |> Dict.insert 17 {tree = (Leaf 17), opCount = 0, ordered = False}
-    |> Dict.insert 7 {tree = (Node PLUS (Leaf 3) (Leaf 4)), opCount = 1, ordered = False}
-    |> Dict.insert -80 {tree = (Node TIMES (Node MINUS (Leaf 2) (Leaf 8)) (Leaf 10)), opCount = 2, ordered = False}
+    |> insertCandidate 17 {tree = (Leaf 17), opCount = 0, ordered = False}
+    |> insertCandidate 7 {tree = (Node PLUS (Leaf 3) (Leaf 4)), opCount = 1, ordered = False}
+    |> insertCandidate -80 {tree = (Node TIMES (Node MINUS (Leaf 2) (Leaf 8)) (Leaf 10)), opCount = 2, ordered = False}
 
 -- Utilities
 crossMap3 : (a -> b -> c -> d) -> List a -> List b -> List c -> List d
