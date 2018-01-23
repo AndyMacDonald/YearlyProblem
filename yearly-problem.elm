@@ -284,7 +284,7 @@ formatTree parent t =
         open = if parens then "(" else ""
         close = if parens then ")" else ""
       in
-        String.concat [open, left, formatOp op, right, close]
+        String.concat [open, left, " ", formatOp op, " ", right, close]
 
 evalTree : OpTree -> Maybe Float
 evalTree t =
