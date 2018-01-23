@@ -33,6 +33,7 @@ type alias Candidate =
   { tree : OpTree
   , opCount : Int
   , ordered : Bool
+  , result : Float
   }
 
 type alias Candidates = Dict.Dict Int Candidate
@@ -72,15 +73,15 @@ view model =
     , div [] 
           --[ ol [] (List.map (\s -> li [] [text s]) (digitGroups model.content))
           --[ ol [] (List.map (\s -> li [] [text s]) (List.map (formatTree Nothing) (createTrees model.content)))
-          [ ol [] (List.map (\s -> li [] [text s]) (List.map (toString << evalTree) (createTrees model.content)))
-          --[ ol [] (createListItems model.content)
+          --[ ol [] (List.map (\s -> li [] [text s]) (List.map (toString << evalTree) (createTrees model.content)))
+          [ ol [] (createListItems model.content)
           ]
     ]
 
 createListItems : String -> List (Html Msg)
 createListItems s =
   let
-    c = createCandidates s
+    c = collectCandidates s
   in
     List.map (\i -> 
                 li [] (case Dict.get i c of
@@ -88,9 +89,13 @@ createListItems s =
                     Just c -> [text (formatTree Nothing c.tree)]))
               (List.range 1 100)
 
-createCandidates : String -> Candidates
+collectCandidates : String -> Candidates
+collectCandidates s = 
+  List.foldl collectCandidate Dict.empty (createCandidates s)
+
+createCandidates : String -> List Candidate
 createCandidates s =
-  sampleCandidates
+  List.filterMap candidateFromTree (createTrees s)
 
 createTrees : String -> List OpTree
 createTrees =
@@ -304,6 +309,12 @@ evalTree t =
                       if isInfinite x || isNaN x then Nothing else Just x
               ))
 
+countOps : OpTree -> Int
+countOps t =
+  case t of
+    Leaf _ -> 0
+    Node _ l r -> 1 + (countOps l) + (countOps r)
+
 sampleTrees : List OpTree
 sampleTrees =
   [ Leaf 17
@@ -312,6 +323,25 @@ sampleTrees =
   ]
 
 -- Candidate management
+candidateFromTree : OpTree -> Maybe Candidate
+candidateFromTree t =
+  let
+    opCount = countOps t
+  in
+    case evalTree t of
+      Just f -> Just {tree = t, opCount = opCount, ordered = False, result = f}
+      Nothing -> Nothing
+
+collectCandidate : Candidate -> Candidates -> Candidates
+collectCandidate c cs =
+  let
+    i = truncate c.result
+  in
+    if i >= 1 && i <= 100 && toFloat i == c.result then
+      insertCandidate i c cs
+    else
+      cs    
+
 insertCandidate : Int -> Candidate -> Candidates -> Candidates
 insertCandidate i c =
   Dict.update
@@ -325,9 +355,9 @@ insertCandidate i c =
 sampleCandidates : Candidates
 sampleCandidates =
   Dict.empty
-    |> insertCandidate 17 {tree = (Leaf 17), opCount = 0, ordered = False}
-    |> insertCandidate 7 {tree = (Node PLUS (Leaf 3) (Leaf 4)), opCount = 1, ordered = False}
-    |> insertCandidate -80 {tree = (Node TIMES (Node MINUS (Leaf 2) (Leaf 8)) (Leaf 10)), opCount = 2, ordered = False}
+    |> insertCandidate 17 {tree = (Leaf 17), opCount = 0, ordered = False, result = 17}
+    |> insertCandidate 7 {tree = (Node PLUS (Leaf 3) (Leaf 4)), opCount = 1, ordered = False, result = 7}
+    |> insertCandidate -80 {tree = (Node TIMES (Node MINUS (Leaf 2) (Leaf 8)) (Leaf 10)), opCount = 2, ordered = False, result = -80}
 
 -- Utilities
 crossMap3 : (a -> b -> c -> d) -> List a -> List b -> List c -> List d
