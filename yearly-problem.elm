@@ -32,7 +32,6 @@ type OpTree
 type alias Candidate =
   { tree : OpTree
   , opCount : Int
-  , ordered : Bool
   , result : Float
   }
 
@@ -107,10 +106,13 @@ digitGroups s =
     List.concatMap groupDigits |>
       List.filter (not << hasLeadingZeros)
 
--- Deduplicate a set of permuations. Not guaranteed to preserve order
+-- Deduplicate a set of permuations. Not guaranteed to preserve order, but
+-- does ensure the first element is the original string (important for preferring
+-- solutions with original digit order)
 uniquePermutations : String -> List String
 uniquePermutations s =
-  permutations s |> Set.fromList |> Set.toList
+  s :: (permutations s |> Set.fromList |> Set.toList |> List.filter (\a -> a /= s))
+    
 
 -- Take a string and return list containing all permutations of that string
 permutations : String -> List String
@@ -329,7 +331,7 @@ candidateFromTree t =
     opCount = countOps t
   in
     case evalTree t of
-      Just f -> Just {tree = t, opCount = opCount, ordered = False, result = f}
+      Just f -> Just {tree = t, opCount = opCount, result = f}
       Nothing -> Nothing
 
 collectCandidate : Candidate -> Candidates -> Candidates
@@ -355,9 +357,9 @@ insertCandidate i c =
 sampleCandidates : Candidates
 sampleCandidates =
   Dict.empty
-    |> insertCandidate 17 {tree = (Leaf 17), opCount = 0, ordered = False, result = 17}
-    |> insertCandidate 7 {tree = (Node PLUS (Leaf 3) (Leaf 4)), opCount = 1, ordered = False, result = 7}
-    |> insertCandidate -80 {tree = (Node TIMES (Node MINUS (Leaf 2) (Leaf 8)) (Leaf 10)), opCount = 2, ordered = False, result = -80}
+    |> insertCandidate 17 {tree = (Leaf 17), opCount = 0, result = 17}
+    |> insertCandidate 7 {tree = (Node PLUS (Leaf 3) (Leaf 4)), opCount = 1, result = 7}
+    |> insertCandidate -80 {tree = (Node TIMES (Node MINUS (Leaf 2) (Leaf 8)) (Leaf 10)), opCount = 2, result = -80}
 
 -- Utilities
 crossMap3 : (a -> b -> c -> d) -> List a -> List b -> List c -> List d
