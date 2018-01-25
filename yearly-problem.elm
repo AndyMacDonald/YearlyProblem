@@ -1,14 +1,17 @@
-import Html exposing (Html, div, input, li, ol, sup, text)
-import Html.Attributes exposing (..)
-import Html.Events exposing (onInput)
+import Html
+import Css exposing (..)
+import Html.Styled exposing (..)
+import Html.Styled.Attributes exposing (..)
+import Html.Styled.Events exposing (onInput)
 import Dict
 import Set
 import Char
 
+main : Program Never Model Msg
 main =
   Html.beginnerProgram
     { model = model
-    , view = view
+    , view = view >> toUnstyled
     , update = update
     }
 
@@ -66,9 +69,24 @@ view model =
     -- in letters or produce a negative value
     [ input [ type_ "text", placeholder "Year", value model.content, onInput Change ] []
     , div [] 
-          [ ol [] (createListItems model.content)
+          [ ol [columnStyle 4] (createListItems model.content)
           ]
     ]
+
+columnStyle : Int -> Html.Styled.Attribute Msg
+columnStyle c =
+  let
+    cstring = toString c
+    pad = "20px"
+  in
+    css
+    [ Css.property "-moz-column-count" cstring
+    , Css.property "-moz-column-gap" pad
+    , Css.property "-webkit-column-count" cstring
+    , Css.property "-webkit-column-gap" pad
+    , Css.property "column-count" cstring
+    , Css.property "column-gap" pad
+    ]    
 
 createListItems : String -> List (Html Msg)
 createListItems s =
@@ -255,13 +273,6 @@ operator t =
   case t of
     Node op _ _ -> Just op
     Leaf _ -> Nothing
-
-mn = Html.node "mn"
-mo = Html.node "mo"
-msup = Html.node "msup"
-mfrac = Html.node "mfrac"
-mfenced = Html.node "mfenced"
-mrow = Html.node "mrow"
 
 minusSym : Char
 minusSym =
