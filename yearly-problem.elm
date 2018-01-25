@@ -3,6 +3,7 @@ import Html.Attributes exposing (..)
 import Html.Events exposing (onInput)
 import Dict
 import Set
+import Char
 
 main =
   Html.beginnerProgram
@@ -10,8 +11,6 @@ main =
     , view = view
     , update = update
     }
-
-
 
 -- MODEL
 type Op
@@ -41,16 +40,12 @@ type alias Model =
   { content : String
   }
 
-
 model : Model
 model =
   Model ""
 
 
-
 -- UPDATE
-
-
 type Msg
   = Change String
 
@@ -58,21 +53,19 @@ update : Msg -> Model -> Model
 update msg model =
   case msg of
     Change newContent ->
-      { model | content = newContent }
-
-
+      if String.length newContent <= 4 && List.all Char.isDigit (String.toList newContent) then
+        { model | content = newContent }
+      else
+        model
 
 -- VIEW
-
-
 view : Model -> Html Msg
 view model =
   div []
-    [ input [ type_ "number", placeholder "Year", onInput Change ] []
+    -- Input could be type "number", but I prefer to enforce in update function, so user cannot type
+    -- in letters or produce a negative value
+    [ input [ type_ "text", placeholder "Year", value model.content, onInput Change ] []
     , div [] 
-          --[ ol [] (List.map (\s -> li [] [text s]) (digitGroups model.content))
-          --[ ol [] (List.map (\s -> li [] [text s]) (List.map (formatTree Nothing) (createTrees model.content)))
-          --[ ol [] (List.map (\s -> li [] [text s]) (List.map (toString << evalTree) (createTrees model.content)))
           [ ol [] (createListItems model.content)
           ]
     ]
