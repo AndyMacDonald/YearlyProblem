@@ -1,4 +1,4 @@
-import Html exposing (Html, div, input, li, ol, text)
+import Html exposing (Html, div, input, li, math, node, ol, text)
 import Html.Attributes exposing (..)
 import Html.Events exposing (onInput)
 import Dict
@@ -78,7 +78,7 @@ createListItems s =
     List.map (\i -> 
                 li [] (case Dict.get i c of
                     Nothing -> []
-                    Just c -> [text (formatTree Nothing c.tree)]))
+                    Just c -> [formatTree Nothing c.tree]))
               (List.range 1 100)
 
 collectCandidates : String -> Candidates
@@ -256,28 +256,41 @@ operator t =
     Node op _ _ -> Just op
     Leaf _ -> Nothing
 
-formatOp : Op -> String
-formatOp op =
-  case op of
-    PLUS -> "+"
-    MINUS -> "-"
-    TIMES -> "*"
-    DIVIDE -> "/"
-    EXP -> "^"
+mn = Html.node "mn"
+mo = Html.node "mo"
+msup = Html.node "msup"
+mfrac = Html.node "mfrac"
+mfenced = Html.node "mfenced"
+mrow = Html.node "mrow"
 
-formatTree : Maybe Op -> OpTree -> String
+formatOp : (List (Html.Attribute Msg) -> List (Html Msg) -> Html Msg) -> Op -> Html Msg -> Html Msg -> Html Msg
+formatOp wrapper op l r =
+  case op of
+    PLUS -> wrapper [] [l, mo [] [(text "+")], r]
+    MINUS -> wrapper [] [l, mo [] [(text "-")], r]
+    TIMES -> wrapper [] [l, mo [] [(text "*")], r]
+    DIVIDE -> mfrac [] [l, r]
+    EXP -> msup [] [l, r]
+
+formatTree : Maybe Op -> OpTree -> Html Msg
 formatTree parent t =
+  --math [] [mn [] [text "7"], mo [] [text "+"], mn [] [text "8"]]
+  --math [] [msup [] [text "7", text "8"]]
+  --math [] [text "&int;_a_^b^{f(x)<over>1+x} dx"]
   case t of
-    Leaf i -> toString i
+    Leaf i -> mn [] [text (toString i)]
     Node op l r ->
       let
         left = formatTree (Just op) l
         right = formatTree (Just op) r
-        parens = needParens parent op
-        open = if parens then "(" else ""
-        close = if parens then ")" else ""
+        wrapper = case needParens parent op of
+          True -> mfenced
+          False -> mrow
+        val = formatOp wrapper op left right
       in
-        String.concat [open, left, " ", formatOp op, " ", right, close]
+        case parent of
+          Nothing -> math [attribute "xmlns" "http://www.w3.org/1998/Math/MathML", attribute "display" "block"] [val]
+          Just _ -> val
 
 evalTree : OpTree -> Maybe Float
 evalTree t =
