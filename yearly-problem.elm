@@ -366,13 +366,6 @@ insertCandidate i c =
         Just cOld ->
           if c.opCount < cOld.opCount then Just c else mc)
 
-sampleCandidates : Candidates
-sampleCandidates =
-  Dict.empty
-    |> insertCandidate 17 {tree = (Leaf 17), opCount = 0, result = 17}
-    |> insertCandidate 7 {tree = (Node PLUS (Leaf 3) (Leaf 4)), opCount = 1, result = 7}
-    |> insertCandidate -80 {tree = (Node TIMES (Node MINUS (Leaf 2) (Leaf 8)) (Leaf 10)), opCount = 2, result = -80}
-
 -- Utilities
 crossMap3 : (a -> b -> c -> d) -> List a -> List b -> List c -> List d
 crossMap3 f aList bList cList =
