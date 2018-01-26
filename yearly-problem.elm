@@ -47,7 +47,6 @@ model : Model
 model =
   Model ""
 
-
 -- UPDATE
 type Msg
   = Change String
@@ -336,13 +335,6 @@ countOps t =
   case t of
     Leaf _ -> 0
     Node _ l r -> 1 + (countOps l) + (countOps r)
-
-sampleTrees : List OpTree
-sampleTrees =
-  [ Leaf 17
-  , Node PLUS (Leaf 3) (Leaf 4)
-  , Node TIMES (Node MINUS (Leaf 2) (Leaf 8)) (Leaf 10)
-  ]
 
 -- Candidate management
 candidateFromTree : OpTree -> Maybe Candidate
