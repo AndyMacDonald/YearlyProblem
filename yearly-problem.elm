@@ -123,7 +123,6 @@ uniquePermutations : String -> List String
 uniquePermutations s =
   s :: (permutations s |> Set.fromList |> Set.toList |> List.filter (\a -> a /= s))
     
-
 -- Take a string and return list containing all permutations of that string
 permutations : String -> List String
 permutations s =
