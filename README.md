@@ -1,5 +1,10 @@
-# YearlyProblem
-Automatically generate solution to the Yearly Problem in Technology Review's Puzzle Corner
+# Yearly Problem
+Since 1975, Technology Review's Puzzle Pages has run a "Yearly Problem" with the following rules:
+
+```markdown
+How many integers from 1 to 100 can you form using the digits of the current year exactly once each, along with the operators +, &minus;, &times; (multiplication), / (division), and ˆ (exponentiation)? We desire solutions containing the minimum number of operators; among solutions having a given number of operators, those using the digits of the year in order are preferred. Parentheses may be used; they do not count as operators. A leading minus sign, however, does count as an operator.
+```
+
 
 <div id="main"></div>
 
