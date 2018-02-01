@@ -15032,25 +15032,67 @@ var _user$project$Main$view = function (model) {
 		{
 			ctor: '::',
 			_0: A2(
-				_rtfeldman$elm_css$Html_Styled$input,
+				_rtfeldman$elm_css$Html_Styled$div,
 				{
 					ctor: '::',
-					_0: _rtfeldman$elm_css$Html_Styled_Attributes$type_('text'),
-					_1: {
-						ctor: '::',
-						_0: _rtfeldman$elm_css$Html_Styled_Attributes$placeholder('Year'),
-						_1: {
+					_0: _rtfeldman$elm_css$Html_Styled_Attributes$css(
+						{
 							ctor: '::',
-							_0: _rtfeldman$elm_css$Html_Styled_Attributes$value(model.content),
+							_0: _rtfeldman$elm_css$Css$textAlign(_rtfeldman$elm_css$Css$center),
+							_1: {ctor: '[]'}
+						}),
+					_1: {ctor: '[]'}
+				},
+				{
+					ctor: '::',
+					_0: A2(
+						_rtfeldman$elm_css$Html_Styled$input,
+						{
+							ctor: '::',
+							_0: _rtfeldman$elm_css$Html_Styled_Attributes$type_('number'),
 							_1: {
 								ctor: '::',
-								_0: _rtfeldman$elm_css$Html_Styled_Events$onInput(_user$project$Main$Change),
-								_1: {ctor: '[]'}
+								_0: _rtfeldman$elm_css$Html_Styled_Attributes$placeholder('Year'),
+								_1: {
+									ctor: '::',
+									_0: _rtfeldman$elm_css$Html_Styled_Attributes$value(model.content),
+									_1: {
+										ctor: '::',
+										_0: _rtfeldman$elm_css$Html_Styled_Events$onInput(_user$project$Main$Change),
+										_1: {
+											ctor: '::',
+											_0: _rtfeldman$elm_css$Html_Styled_Attributes$autofocus(true),
+											_1: {
+												ctor: '::',
+												_0: _rtfeldman$elm_css$Html_Styled_Attributes$min('1'),
+												_1: {
+													ctor: '::',
+													_0: _rtfeldman$elm_css$Html_Styled_Attributes$max('9999'),
+													_1: {
+														ctor: '::',
+														_0: _rtfeldman$elm_css$Html_Styled_Attributes$size(6),
+														_1: {
+															ctor: '::',
+															_0: _rtfeldman$elm_css$Html_Styled_Attributes$css(
+																{
+																	ctor: '::',
+																	_0: _rtfeldman$elm_css$Css$fontSize(
+																		_rtfeldman$elm_css$Css$px(16)),
+																	_1: {ctor: '[]'}
+																}),
+															_1: {ctor: '[]'}
+														}
+													}
+												}
+											}
+										}
+									}
+								}
 							}
-						}
-					}
-				},
-				{ctor: '[]'}),
+						},
+						{ctor: '[]'}),
+					_1: {ctor: '[]'}
+				}),
 			_1: {
 				ctor: '::',
 				_0: A2(
@@ -15062,7 +15104,7 @@ var _user$project$Main$view = function (model) {
 							_rtfeldman$elm_css$Html_Styled$ol,
 							{
 								ctor: '::',
-								_0: _user$project$Main$columnStyle(4),
+								_0: _user$project$Main$columnStyle(3),
 								_1: {ctor: '[]'}
 							},
 							_user$project$Main$createListItems(model.content)),
