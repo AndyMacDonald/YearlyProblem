@@ -66,9 +66,16 @@ view model =
   div []
     -- Input could be type "number", but I prefer to enforce in update function, so user cannot type
     -- in letters or produce a negative value
-    [ input [ type_ "text", placeholder "Year", value model.content, onInput Change ] []
+    [ div []
+      [ input [ type_ "number"
+              , placeholder "Year"
+              , value model.content
+              , onInput Change
+              , autofocus True
+              , Html.Styled.Attributes.min "1"
+              , Html.Styled.Attributes.max "9999" ] [] ]
     , div [] 
-          [ ol [columnStyle 4] (createListItems model.content)
+          [ ol [columnStyle 3] (createListItems model.content)
           ]
     ]
 
