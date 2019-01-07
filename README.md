@@ -3,7 +3,7 @@
 <div id="main"></div>
 
 <script type="text/javascript">
-{% include assets/yearly.js.gz %}
+{% include assets/yearly.js %}
 </script>
 <script>
 var node = document.getElementById('main');
