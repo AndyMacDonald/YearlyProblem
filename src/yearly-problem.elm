@@ -2,7 +2,7 @@ module Main exposing (..)
 
 import Browser
 import Css exposing (center, fontSize, px, textAlign)
-import Html.Styled exposing (Attribute, toUnstyled, Html, div, input, ol, li, sup, text, p)
+import Html.Styled exposing (Attribute, toUnstyled, Html, div, input, ol, li, sup, text, b)
 import Html.Styled.Attributes exposing (..)
 import Html.Styled.Events exposing (onInput)
 import Dict
@@ -45,6 +45,7 @@ type alias Candidate =
     { tree : OpTree
     , opCount : Int
     , result : Float
+    , digits : String
     }
 
 
@@ -108,6 +109,10 @@ view model_ =
         ]
 
 
+
+-- Argument is number of columns
+
+
 columnStyle : Int -> Html.Styled.Attribute Msg
 columnStyle c =
     let
@@ -141,7 +146,14 @@ createListItems s =
                             []
 
                         Just c ->
-                            formatTree Nothing c.tree
+                            let
+                                formula =
+                                    formatTree Nothing c.tree
+                            in
+                                if c.digits == s then
+                                    [ b [] formula ]
+                                else
+                                    formula
                     )
             )
             (List.range 1 100)
@@ -541,6 +553,16 @@ countOps t =
             1 + (countOps l) + (countOps r)
 
 
+digitsFromTree : OpTree -> String
+digitsFromTree t =
+    case t of
+        Leaf i ->
+            String.fromInt i
+
+        Node _ l r ->
+            (digitsFromTree l) ++ (digitsFromTree r)
+
+
 
 -- Candidate management
 
@@ -553,7 +575,7 @@ candidateFromTree t =
     in
         case evalTree t of
             Just f ->
-                Just { tree = t, opCount = opCount, result = f }
+                Just { tree = t, opCount = opCount, result = f, digits = digitsFromTree t }
 
             Nothing ->
                 Nothing
