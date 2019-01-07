@@ -371,8 +371,8 @@ resultToInt =
 -- Tree formatting
 
 
-precidence : Op -> Int
-precidence o =
+precedence : Op -> Int
+precedence o =
     case o of
         PLUS ->
             1
@@ -410,10 +410,10 @@ needParens parent child =
             False
 
         Just p ->
-            if (precidence p) == (precidence child) && not (commutative p) then
+            if (precedence p) == (precedence child) && not (commutative p) then
                 True
             else
-                precidence p > precidence child
+                precedence p > precedence child
 
 
 operator : OpTree -> Maybe Op
