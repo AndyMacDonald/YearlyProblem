@@ -1,8 +1,8 @@
 module Main exposing (..)
 
-import Html
-import Css exposing (..)
-import Html.Styled exposing (..)
+import Browser
+import Css exposing (center, fontSize, px, textAlign)
+import Html.Styled exposing (Attribute, toUnstyled, Html, div, input, ol, li, sup, text, p)
 import Html.Styled.Attributes exposing (..)
 import Html.Styled.Events exposing (onInput)
 import Dict
@@ -10,10 +10,10 @@ import Set
 import Char
 
 
-main : Program Never Model Msg
+main : Program () Model Msg
 main =
-    Html.beginnerProgram
-        { model = model
+    Browser.sandbox
+        { init = model
         , view = view >> toUnstyled
         , update = update
         }
@@ -71,13 +71,13 @@ type Msg
 
 
 update : Msg -> Model -> Model
-update msg model =
+update msg model_ =
     case msg of
         Change newContent ->
             if String.length newContent <= 4 && List.all Char.isDigit (String.toList newContent) then
-                { model | content = newContent }
+                { model_ | content = newContent }
             else
-                model
+                model_
 
 
 
@@ -85,7 +85,7 @@ update msg model =
 
 
 view : Model -> Html Msg
-view model =
+view model_ =
     div []
         -- Input could be type "number", but I prefer to enforce in update function, so user cannot type
         -- in letters or produce a negative value
@@ -93,10 +93,9 @@ view model =
             [ input
                 [ type_ "number"
                 , placeholder "Year"
-                , value model.content
+                , value model_.content
                 , onInput Change
                 , autofocus True
-                , Html.Styled.Attributes.min "1"
                 , Html.Styled.Attributes.max "9999"
                 , size 6
                 , css [ fontSize (px 16) ]
@@ -104,7 +103,7 @@ view model =
                 []
             ]
         , div []
-            [ ol [ columnStyle 3 ] (createListItems model.content)
+            [ ol [ columnStyle 3 ] (createListItems model_.content)
             ]
         ]
 
@@ -113,7 +112,7 @@ columnStyle : Int -> Html.Styled.Attribute Msg
 columnStyle c =
     let
         cstring =
-            toString c
+            String.fromInt c
 
         pad =
             "20px"
@@ -131,13 +130,13 @@ columnStyle c =
 createListItems : String -> List (Html Msg)
 createListItems s =
     let
-        c =
+        candidates =
             collectCandidates s
     in
         List.map
             (\i ->
                 li []
-                    (case Dict.get i c of
+                    (case Dict.get i candidates of
                         Nothing ->
                             []
 
@@ -203,10 +202,10 @@ permuteIter total count s =
                 maxFactBase c2 (String.length s)
 
             left =
-                if right % 2 == 0 then
+                if modBy 2 right == 0 then
                     0
                 else
-                    (c2 % (factorial (right + 1))) // (factorial right) - 1
+                    (modBy (factorial (right + 1)) c2) // (factorial right) - 1
 
             s2 =
                 swap s left right
@@ -228,7 +227,7 @@ maxFactBase : Int -> Int -> Int
 maxFactBase n i =
     if i == 1 then
         1
-    else if n % (factorial i) == 0 then
+    else if modBy (factorial i) n == 0 then
         i
     else
         maxFactBase n (i - 1)
@@ -265,17 +264,17 @@ groupDigits s =
                         groupDigits rest
 
                     g1 =
-                        List.map (\s -> String.cons first s) restGroups
+                        List.map (\groups -> String.cons first groups) restGroups
 
                     g2 =
-                        List.map (\s -> String.cons ',' s |> String.cons first) restGroups
+                        List.map (\groups -> String.cons ',' groups |> String.cons first) restGroups
                 in
                     List.append g1 g2
 
 
 hasLeadingZeros : String -> Bool
-hasLeadingZeros s =
-    String.split "," s
+hasLeadingZeros str =
+    String.split "," str
         |> List.any
             (\x ->
                 case String.uncons x of
@@ -294,7 +293,7 @@ hasLeadingZeros s =
 treesFromGroups : List String -> List OpTree
 treesFromGroups groups =
     List.map numsFromString groups
-        |> -- List List (Result String Int)
+        |> -- List List (Maybe Int)
            List.filter noStringErrors
         |> List.concatMap (treesFromDigits << resultToInt)
 
@@ -334,35 +333,35 @@ naiveTree nums =
     Leaf 0
 
 
-numsFromString : String -> List (Result String Int)
+numsFromString : String -> List (Maybe Int)
 numsFromString s =
     String.split "," s
         |> List.map String.toInt
 
 
-noStringErrors : List (Result String Int) -> Bool
+noStringErrors : List (Maybe Int) -> Bool
 noStringErrors =
     not
         << List.any
             (\n ->
                 case n of
-                    Ok _ ->
+                    Just _ ->
                         False
 
-                    Err _ ->
+                    Nothing ->
                         True
             )
 
 
-resultToInt : List (Result String Int) -> List Int
+resultToInt : List (Maybe Int) -> List Int
 resultToInt =
     List.map
         (\n ->
             case n of
-                Ok i ->
+                Just i ->
                     i
 
-                Err _ ->
+                Nothing ->
                     0
         )
 
@@ -473,7 +472,7 @@ formatTree : Maybe Op -> OpTree -> List (Html Msg)
 formatTree parent t =
     case t of
         Leaf i ->
-            [ text (toString i) ]
+            [ text (String.fromInt i) ]
 
         Node op l r ->
             let
