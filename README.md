@@ -3,7 +3,7 @@
 <div id="main"></div>
 
 <script type="text/javascript">
-{% include assets/yearly.js %}
+{% include assets/yearly.js.gz %}
 </script>
 <script>
 var node = document.getElementById('main');
@@ -32,7 +32,7 @@ The whole page, including the solver, is written in [Elm](http://elm-lang.org). 
 3. For each grouping, generate all the ways to apply the operators +, -, *, /, ^.
 4. Evaluate each of those and keep the ones the result in integers from 1 to 100.
 5. When collecting solutions, prefer ones with fewer operators and where the original digit order is preserved.
-6. Display an ordered list with the best solutions.
+6. Display an ordered list with the best solutions. Solutions with digits in the order of the input are shown in bold.
 
 For a four digit year with unique digits, we consider tens of thousands of trees, an exhaustive search over the permutations.
 
@@ -41,3 +41,7 @@ For a four digit year with unique digits, we consider tens of thousands of trees
 **Performance:** I originally worried the solution would be slow and that I would need to spend quite a bit of time optimizing. I wanted the page to be instantly reactive to typing. To my surprise, the first implementation was fast enough. Beyond deduplicating the set of permutations in step (1) above, no optimizations were made.
 
 **Formatting the solutions:** My original plan was to use MathML to format the solutions. MathML is not supported in all browsers, but works in [Firefox and Safari](https://caniuse.com/#search=mathml). I could not get it to work in Elm -- Elm generated the correct DOM, as I could verify using Firefox's inspector, but it was not rendered correctly. So ultimately I just generated HTML to superscript the exponents.
+
+## Update
+
+This app was originally written in Elm 0.18. In January 2019 it was upgraded to Elm 0.19 to take advantage of Elm's new optimization features. The recompile cut the size of the javascript file from 450K to 210K. Zipping the JS dropped the size to 41K, much easier to load.
