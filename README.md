@@ -42,6 +42,6 @@ For a four digit year with unique digits, we consider tens of thousands of trees
 
 **Formatting the solutions:** My original plan was to use MathML to format the solutions. MathML is not supported in all browsers, but works in [Firefox and Safari](https://caniuse.com/#search=mathml). I could not get it to work in Elm -- Elm generated the correct DOM, as I could verify using Firefox's inspector, but it was not rendered correctly. So ultimately I just generated HTML to superscript the exponents.
 
-## Update
+## Update, January 2019
 
-This app was originally written in Elm 0.18. In January 2019 it was upgraded to Elm 0.19 to take advantage of Elm's new optimization features. The recompile cut the size of the javascript file from 450K to 210K. Zipping the JS dropped the size to 41K, much easier to load.
+This app was originally written in Elm 0.18. In January 2019 I upgraded it to Elm 0.19 to take advantage of Elm's new optimization features. The recompile cut the size of the javascript file from 450K to 210K. Zipping the JS dropped the size to 41K, much easier to load.
