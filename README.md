@@ -6,8 +6,8 @@
 {% include assets/yearly.js %}
 </script>
 <script>
-var node = document.getElementById('main');
-var app = Elm.Main.init(node);
+var mainNode = document.getElementById('main');
+var app = Elm.Main.init( { node: mainNode });
 </script>
 
 ## The Idea
