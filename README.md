@@ -1,5 +1,7 @@
 ﻿# Yearly Problem
 
+[Run this application in your browser.](https://andymacdonald.github.io/YearlyProblem/)
+
 <div id="main"></div>
 
 <script type="text/javascript">
