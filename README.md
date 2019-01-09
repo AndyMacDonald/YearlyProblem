@@ -44,4 +44,4 @@ For a four digit year with unique digits, we consider tens of thousands of trees
 
 ## Update, January 2019
 
-This app was originally written in Elm 0.18. In January 2019 I upgraded it to Elm 0.19 to take advantage of Elm's new optimization features. The recompile cut the size of the javascript file from 450K to 210K. Zipping the JS dropped the size to 41K, much easier to load.
+This app was originally written in Elm 0.18. In January 2019 I upgraded it to Elm 0.19 to take advantage of Elm's new optimization features. The recompile cut the size of the javascript file from 450K to 210K.
