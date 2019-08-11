@@ -411,6 +411,9 @@ commutative o =
         DIVIDE ->
             False
 
+        EXP ->
+            False
+
         _ ->
             True
 

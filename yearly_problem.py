@@ -66,7 +66,7 @@ def precidence(op):
   return 4 # noop
 
 def commutative(op):
-  if op == '-' or op == '/':
+  if op == '-' or op == '/' or op == '^':
     return False
   return True
 
